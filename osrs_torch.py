@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -130,7 +129,7 @@ class Dense_block(nn.Module):
     return x
 
 
-class model(nn.Module):
+class LSTM_model(nn.Module):
 
   def __init__(self, input_dim, hidden_dim):
     super(LSTM_model, self).__init__()
@@ -177,7 +176,7 @@ criterion = LogCosH()
 
 model.to(device)
 
-def train_model(model, trainloader, validloader, epochs, device, threshold=0.001, stop_patience=3):
+def train_model(model, trainloader, validloader, epochs, device, threshold=0.01, stop_patience=5):
   best_val_loss = float('inf')
 
 
