@@ -136,8 +136,8 @@ class LSTM_model(nn.Module):
     self.hidden_dim = hidden_dim
 
     self.lstm_1 = LSTM_block(input_dim, hidden_dim)
-    self.lstm_2 = LSTM_block(hidden_dim, hidden_dim)
-    self.lstm_3 = LSTM_block(hidden_dim, hidden_dim)
+    #self.lstm_2 = LSTM_block(hidden_dim, hidden_dim)
+    #self.lstm_3 = LSTM_block(hidden_dim, hidden_dim)
 
     self.dense_1 = Dense_block(hidden_dim, hidden_dim)
     self.dense_2 = Dense_block(hidden_dim, hidden_dim)
@@ -146,8 +146,8 @@ class LSTM_model(nn.Module):
 
   def forward(self, x):
     x = self.lstm_1(x)
-    x = self.lstm_2(x)
-    x = self.lstm_3(x)
+    #x = self.lstm_2(x)
+    #x = self.lstm_3(x)
 
     x = self.dense_1(x)
     x = self.dense_2(x)
@@ -176,7 +176,7 @@ criterion = LogCosH()
 
 model.to(device)
 
-def train_model(model, trainloader, validloader, epochs, device, threshold=0.01, stop_patience=5):
+def train_model(model, trainloader, validloader, epochs, device, threshold=0.1, stop_patience=5):
   best_val_loss = float('inf')
 
 
