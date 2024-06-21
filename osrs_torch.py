@@ -171,7 +171,7 @@ class LogCosH(nn.Module):
 epochs = 20
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.01)
 criterion = LogCosH()
 
 model.to(device)
