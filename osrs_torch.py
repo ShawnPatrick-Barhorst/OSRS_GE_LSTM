@@ -136,8 +136,8 @@ class LSTM_model(nn.Module):
     self.hidden_dim = hidden_dim
 
     self.lstm_1 = LSTM_block(input_dim, hidden_dim)
-    #self.lstm_2 = LSTM_block(hidden_dim, hidden_dim)
-    #self.lstm_3 = LSTM_block(hidden_dim, hidden_dim)
+    self.lstm_2 = LSTM_block(hidden_dim, hidden_dim)
+    self.lstm_3 = LSTM_block(hidden_dim, hidden_dim)
 
     self.dense_1 = Dense_block(hidden_dim, hidden_dim)
     self.dense_2 = Dense_block(hidden_dim, hidden_dim)
@@ -146,8 +146,8 @@ class LSTM_model(nn.Module):
 
   def forward(self, x):
     x = self.lstm_1(x)
-    #x = self.lstm_2(x)
-    #x = self.lstm_3(x)
+    x = self.lstm_2(x)
+    x = self.lstm_3(x)
 
     x = self.dense_1(x)
     x = self.dense_2(x)
@@ -171,7 +171,7 @@ class LogCosH(nn.Module):
 epochs = 20
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.01)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.1)
 criterion = LogCosH()
 
 model.to(device)
