@@ -54,7 +54,7 @@ class data(Dataset):
     dataset = dataset.astype('float64')
     dataset = dataset.drop(columns=exclusion_set)
     
-    #dataset = dataset.iloc[:, :1000]
+    dataset = dataset.iloc[:, :100]
 
     dataset = dataset.replace([np.inf, -np.inf], np.nan)
     dataset = dataset.ffill()
@@ -120,7 +120,7 @@ exclusion_set = ['Anchovy pizza', 'Pineapple pizza', 'Raw tuna', 'Raw anchovies'
 train_data = data(exclusion_set, train=True, split_ratio=0.8)
 validation_data = data(exclusion_set, train=False, split_ratio=0.8)
 
-batch_size = 16
+batch_size = 8
 
 trainloader = torch.utils.data.DataLoader(train_data, batch_size, shuffle=True)
 validloader = torch.utils.data.DataLoader(validation_data, batch_size, shuffle=True)
@@ -184,8 +184,6 @@ class LSTM_model(nn.Module):
 
   def forward(self, x):
     x = self.lstm_1(x)
-    #x = self.lstm_2(x)
-    #x = self.lstm_3(x)
 
     x = self.dense_1(x)
     x = self.dense_2(x)
@@ -214,7 +212,7 @@ criterion = LogCosH()
 
 model.to(device)
 
-def train_model(model, trainloader, validloader, epochs, device, threshold=0.01, stop_patience=5):
+def train_model(model, trainloader, validloader, epochs, device, threshold=0.00, stop_patience=5):
   best_val_loss = float('inf')
 
 
