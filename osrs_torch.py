@@ -48,42 +48,41 @@ from torch.optim import Adam
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-
-
 class data(Dataset):
   def __init__(self, exclusion_set, split_ratio, train, window_length = 30):
     dataset = pd.read_csv('https://raw.githubusercontent.com/ShawnPatrick-Barhorst/OSRS_GE_LSTM/main/OSRS_GE_price_dataset.csv')
     dataset = dataset.astype('float64')
+    dataset = dataset.drop(columns=exclusion_set)
+    
+    #dataset = dataset.iloc[:, :1000]
+
+    dataset = dataset.replace([np.inf, -np.inf], np.nan)
+    dataset = dataset.ffill()
+    dataset = dataset.bfill()
 
     #Shuffle and Split dataframe
     shuffled_columns = np.random.permutation(dataset.columns)
     split_index = int(len(dataset.columns) * split_ratio)
-    if train == True:
-      self.shuffled_columns = shuffled_columns[:split_index]
-    else:
-      self.shuffled_columns = shuffled_columns[split_index:]
 
     dataset = dataset[shuffled_columns]
 
-    print(dataset.shape)
+    if train == True:
+      shuffled_columns = shuffled_columns[:split_index]
+    else:
+      shuffled_columns = shuffled_columns[split_index:]
 
-
-
-
-    item_list = [item for item in dataset.columns if item not in exclusion_set][:10]
+    dataset = dataset[shuffled_columns]
 
     x_train, y_train = [], []
-    for item in item_list:
+    for item in dataset:
       train = dataset[item][:5500].ewm(com=10).mean()
       train = train.pct_change()
-      train = train.fillna(method = 'bfill')
-
-
+      train = train.replace([np.inf, -np.inf], np.nan)
+      train = train.bfill()
+      train = train.ffill()
       train = np.array(train)
       train = np.reshape(train, (-1, 1))
 
-      if np.isinf(train).any():
-        train[train == np.inf] = 0
 
       scaled_data = scaler.fit_transform(train)
 
@@ -91,7 +90,7 @@ class data(Dataset):
       scaled_data = scaled_data + noise
 
 
-      for i in range(window_length,5500):
+      for i in range(window_length,len(scaled_data)):
         x_train.append(scaled_data[i-window_length:i,0])
         y_train.append(scaled_data[i,0])
 
@@ -117,11 +116,9 @@ class data(Dataset):
   def get_validation_list(self):
     return self.shuffled_columns
 
-exclusion_set = ['Anchovy pizza', 'Pineapple pizza']
+exclusion_set = ['Anchovy pizza', 'Pineapple pizza', 'Raw tuna', 'Raw anchovies']
 train_data = data(exclusion_set, train=True, split_ratio=0.8)
 validation_data = data(exclusion_set, train=False, split_ratio=0.8)
-
-validation_data.get_validation_list()
 
 batch_size = 16
 
@@ -209,7 +206,7 @@ class LogCosH(nn.Module):
         loss = torch.log(torch.cosh(y_pred - y_true))
         return torch.mean(loss)
 
-epochs = 20
+epochs = 30
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.01)
@@ -274,3 +271,7 @@ torch.save(model.state_dict(), 'LSTM_model.pt')
 new_model = LSTM_model(1, 32)
 new_model.load_state_dict(torch.load('LSTM_model.pt'))
 new_model.to(device)
+
+
+
+
